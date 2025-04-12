@@ -1,3 +1,15 @@
+## xxx
+
+### Breaking changes
+
+```
+/Users/.../video_compress-2.0.0/ios/Classes/VideoCompressPlugin.m:2:9: fatal error: 'video_compress/video_compress-Swift.h' file not found
+#import <video_compress/video_compress-Swift.h>
+```
+
+Package now uses video_compress to generate the thumbnails, this packages uses swift and kotlin, so you flutter project needs to supports them as well.
+https://github.com/jonataslaw/VideoCompress/issues/35#issuecomment-738567943
+
 ## 3.0.0
 
 > **Note**

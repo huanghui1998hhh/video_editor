@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -131,3 +132,14 @@ bool isRectContained(Size size, Rect rect) =>
 /// ratio=1 => 1
 /// ```
 double getOppositeRatio(double ratio) => 1 / ratio;
+
+// Fix video_compress thumbnails position different between iOS and Android
+// based on https://github.com/jonataslaw/VideoCompress/pull/289
+int getThumbnailPosition(int timeMs) {
+  if (Platform.isIOS) {
+    return timeMs * 1000;
+  } else if (Platform.isAndroid) {
+    return (timeMs / 1000).toInt();
+  }
+  return timeMs;
+}

@@ -1,13 +1,12 @@
 // ignore_for_file: unnecessary_string_escapes
 
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:video_compress/video_compress.dart';
 import 'package:video_editor/src/controller.dart';
 import 'package:video_editor/src/models/file_format.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:video_editor/src/utils/helpers.dart';
 
 class FFmpegVideoEditorExecute {
   const FFmpegVideoEditorExecute({
@@ -211,7 +210,7 @@ class CoverFFmpegVideoEditorConfig extends FFmpegVideoEditorConfig {
   /// Defaults to [CoverExportFormat.jpg].
   final CoverExportFormat format;
 
-  /// The [quality] of the exported image (from 0 to 100 ([more info](https://pub.dev/packages/video_thumbnail)))
+  /// The [quality] of the exported image (from 0 to 100 ([more info](https://pub.dev/packages/video_compress)))
   ///
   /// Defaults to `100`.
   final int quality;
@@ -223,17 +222,18 @@ class CoverFFmpegVideoEditorConfig extends FFmpegVideoEditorConfig {
     String outputPath,
   )? commandBuilder;
 
-  /// Generate this selected cover image as a JPEG [File]
+  /// Generate this selected cover image
   ///
   /// If this controller's [selectedCoverVal] is `null`, then it return the first frame of this video.
-  Future<String?> _generateCoverFile() async => VideoThumbnail.thumbnailFile(
-        imageFormat: ImageFormat.JPEG,
-        thumbnailPath: (await getTemporaryDirectory()).path,
-        video: controller.file.path,
-        timeMs: controller.selectedCoverVal?.timeMs ??
-            controller.startTrim.inMilliseconds,
-        quality: quality,
-      );
+  Future<String?> _generateCoverFile() async {
+    final coverPath = await VideoCompress.getFileThumbnail(
+      controller.file.path,
+      quality: quality,
+      position: getThumbnailPosition(controller.selectedCoverVal?.timeMs ??
+          controller.startTrim.inMilliseconds),
+    );
+    return coverPath.path;
+  }
 
   /// Returns a [FFmpegVideoEditorExecute] command to be executed with FFmpeg to export
   /// the cover image applying the editing parameters.

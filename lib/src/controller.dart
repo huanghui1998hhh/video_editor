@@ -356,13 +356,13 @@ class VideoEditorController extends ChangeNotifier {
   //-----------//
 
   /// The [coverThumbnailsQuality] param specifies the quality of the generated
-  /// cover selection thumbnails (from 0 to 100 ([more info](https://pub.dev/packages/video_thumbnail)))
+  /// cover selection thumbnails (from 0 to 100 ([more info](https://pub.dev/packages/video_compress)))
   ///
   /// Defaults to `10`.
   final int coverThumbnailsQuality;
 
   /// The [trimThumbnailsQuality] param specifies the quality of the generated
-  /// trim slider thumbnails (from 0 to 100 ([more info](https://pub.dev/packages/video_thumbnail)))
+  /// trim slider thumbnails (from 0 to 100 ([more info](https://pub.dev/packages/video_compress)))
   ///
   /// Defaults to `10`.
   final int trimThumbnailsQuality;
