@@ -137,9 +137,9 @@ double getOppositeRatio(double ratio) => 1 / ratio;
 // based on https://github.com/jonataslaw/VideoCompress/pull/289
 int getThumbnailPosition(int timeMs) {
   if (Platform.isIOS) {
-    return timeMs * 1000;
-  } else if (Platform.isAndroid) {
     return (timeMs / 1000).toInt();
+  } else if (Platform.isAndroid) {
+    return timeMs * 1000;
   }
   return timeMs;
 }
