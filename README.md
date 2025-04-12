@@ -131,8 +131,8 @@ For more details check out the [example](https://github.com/LeGoffMael/video_edi
 | int rotation                     | The rotation angle set `0`, `90`, `180` and `270` |
 | int cacheRotation                | The sum of all the rotation applied in the editor |
 | CoverData? selectedCoverVal      | The selected cover thumbnail that will be used to export the final cover |
-| int coverThumbnailsQuality = 10  | The `coverThumbnailsQuality` param specifies the quality of the generated cover thumbnails, from 0 to 100 ([more info](https://pub.dev/packages/video_compress)) |
-| int trimThumbnailsQuality = 10   | The `trimThumbnailsQuality` param specifies the quality of the generated trim slider thumbnails, from 0 to 100 ([more info](https://pub.dev/packages/video_compress)) |
+| int coverThumbnailsQuality = 80  | The `coverThumbnailsQuality` param specifies the quality of the generated cover thumbnails, from 0 to 100 ([more info](https://pub.dev/packages/video_compress#get-memory-thumbnail-from-videopath)) |
+| int trimThumbnailsQuality = 10   | The `trimThumbnailsQuality` param specifies the quality of the generated trim slider thumbnails, from 0 to 100 ([more info](https://pub.dev/packages/video_compress#get-memory-thumbnail-from-videopath)) |
 
 
 ### Widgets
@@ -285,7 +285,7 @@ Contains all FFmpegVideoEditorConfig parameters.
 | Param                            | Description                       |
 | -------------------------------- | --------------------------------- |
 | CoverExportFormat format = CoverExportFormat.jpg | The `format` param specifies the extension of the generated cover |
-| int quality = 100 | The `quality` param specifies the quality of the generated thumbnails, from 0 to 100 ([more info](https://pub.dev/packages/video_compress)) |
+| int quality = 100 | The `quality` param specifies the quality of the generated thumbnails, from 0 to 100 ([more info](https://pub.dev/packages/video_compress#get-file-thumbnail-from-videopath)) |
 | String Function? commandBuilder | The `commandBuilder` param can be used to generate a command with custom options |
 
 ## 💭 FAQ

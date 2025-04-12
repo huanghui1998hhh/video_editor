@@ -47,7 +47,7 @@ class VideoEditorController extends ChangeNotifier {
     this.file, {
     this.maxDuration = Duration.zero,
     this.minDuration = Duration.zero,
-    this.coverThumbnailsQuality = 10,
+    this.coverThumbnailsQuality = 80,
     this.trimThumbnailsQuality = 10,
     this.coverStyle = const CoverSelectionStyle(),
     this.cropStyle = const CropGridStyle(),
@@ -358,7 +358,7 @@ class VideoEditorController extends ChangeNotifier {
   /// The [coverThumbnailsQuality] param specifies the quality of the generated
   /// cover selection thumbnails (from 0 to 100 ([more info](https://pub.dev/packages/video_compress)))
   ///
-  /// Defaults to `10`.
+  /// Defaults to `80`.
   final int coverThumbnailsQuality;
 
   /// The [trimThumbnailsQuality] param specifies the quality of the generated
