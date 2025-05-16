@@ -1,20 +1,21 @@
+import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:video_editor/src/utils/helpers.dart';
-import 'package:video_editor/src/utils/thumbnails.dart';
-import 'package:video_editor/src/models/cover_data.dart';
-import 'package:video_editor/video_editor.dart';
-import 'package:video_player/video_player.dart';
+import 'package:meta/meta.dart';
+
+import 'models/cover_data.dart';
+import 'utils/helpers.dart';
+import 'utils/thumbnails.dart';
 
 class VideoMinDurationError extends Error {
+  VideoMinDurationError(this.minDuration, this.videoDuration);
   final Duration minDuration;
   final Duration videoDuration;
 
-  VideoMinDurationError(this.minDuration, this.videoDuration);
-
   @override
   String toString() =>
-      "Invalid argument (minDuration): The minimum duration ($minDuration) cannot be bigger than the duration of the video file ($videoDuration)";
+      'Invalid argument (minDuration): The minimum duration ($minDuration) cannot be bigger than the duration of the video file ($videoDuration)';
 }
 
 enum RotateDirection { left, right }
@@ -27,38 +28,24 @@ const Offset minOffset = Offset.zero;
 
 /// Provides an easy way to change edition parameters to apply in the different widgets of the package and at the exportion
 /// This controller allows to : rotate, crop, trim, cover generation and exportation (video and cover)
-class VideoEditorController extends ChangeNotifier {
-  /// Style for [TrimSlider]
-  final TrimSliderStyle trimStyle;
-
-  /// Style for [CoverSelection]
-  final CoverSelectionStyle coverStyle;
-
-  /// Style for [CropGridViewer]
-  final CropGridStyle cropStyle;
-
-  /// Video from [File].
-  final File file;
-
-  /// Constructs a [VideoEditorController] that edits a video from a file.
+abstract class BaseVideoEditorController extends ChangeNotifier
+    with _VideoPlayerControlMixin {
+  /// Constructs a [BaseVideoEditorController] that edits a video from a file.
   ///
   /// The [file] argument must not be null.
-  VideoEditorController.file(
-    this.file, {
+  BaseVideoEditorController({
+    required this.file,
     this.maxDuration = Duration.zero,
     this.minDuration = Duration.zero,
     this.coverThumbnailsQuality = 10,
     this.trimThumbnailsQuality = 10,
-    this.coverStyle = const CoverSelectionStyle(),
-    this.cropStyle = const CropGridStyle(),
-    TrimSliderStyle? trimStyle,
-  })  : _video = VideoPlayerController.file(File(
-          // https://github.com/flutter/flutter/issues/40429#issuecomment-549746165
-          Platform.isIOS ? Uri.encodeFull(file.path) : file.path,
-        )),
-        trimStyle = trimStyle ?? TrimSliderStyle(),
-        assert(maxDuration > minDuration,
-            'The maximum duration must be bigger than the minimum duration');
+  }) : assert(
+          maxDuration > minDuration,
+          'The max ium duration must be bigger than the minimum duration',
+        );
+
+  /// Video from [File].
+  final File file;
 
   int _rotation = 0;
   bool _isTrimming = false;
@@ -78,29 +65,11 @@ class VideoEditorController extends ChangeNotifier {
 
   Duration _trimEnd = Duration.zero;
   Duration _trimStart = Duration.zero;
-  final VideoPlayerController _video;
 
   // Selected cover value
   final ValueNotifier<CoverData?> _selectedCover =
       ValueNotifier<CoverData?>(null);
 
-  /// Get the [VideoPlayerController]
-  VideoPlayerController get video => _video;
-
-  /// Get the [VideoPlayerController.value.initialized]
-  bool get initialized => _video.value.isInitialized;
-
-  /// Get the [VideoPlayerController.value.isPlaying]
-  bool get isPlaying => _video.value.isPlaying;
-
-  /// Get the [VideoPlayerController.value.position]
-  Duration get videoPosition => _video.value.position;
-
-  /// Get the [VideoPlayerController.value.duration]
-  Duration get videoDuration => _video.value.duration;
-
-  /// Get the [VideoPlayerController.value.size]
-  Size get videoDimension => _video.value.size;
   double get videoWidth => videoDimension.width;
   double get videoHeight => videoDimension.height;
 
@@ -167,7 +136,7 @@ class VideoEditorController extends ChangeNotifier {
     if (value != null) {
       final newSize = computeSizeWithRatio(videoDimension, value);
 
-      Rect centerCrop = Rect.fromCenter(
+      final Rect centerCrop = Rect.fromCenter(
         center: Offset(videoWidth / 2, videoHeight / 2),
         width: newSize.width,
         height: newSize.height,
@@ -176,7 +145,9 @@ class VideoEditorController extends ChangeNotifier {
       _minCrop =
           Offset(centerCrop.left / videoWidth, centerCrop.top / videoHeight);
       _maxCrop = Offset(
-          centerCrop.right / videoWidth, centerCrop.bottom / videoHeight);
+        centerCrop.right / videoWidth,
+        centerCrop.bottom / videoHeight,
+      );
       notifyListeners();
     }
   }
@@ -200,15 +171,12 @@ class VideoEditorController extends ChangeNotifier {
   ///   // NOTE : handle the error here
   /// }, test: (e) => e is VideoMinDurationError);
   /// ```
+  @mustBeOverridden
+  @mustCallSuper
   Future<void> initialize({double? aspectRatio}) async {
-    await _video.initialize();
-
     if (minDuration > videoDuration) {
       throw VideoMinDurationError(minDuration, videoDuration);
     }
-
-    _video.addListener(_videoListener);
-    _video.setLooping(true);
 
     // if no [maxDuration] param given, maxDuration is the videoDuration
     maxDuration = maxDuration == Duration.zero ? videoDuration : maxDuration;
@@ -216,7 +184,9 @@ class VideoEditorController extends ChangeNotifier {
     // Trim straight away when maxDuration is lower than video duration
     if (maxDuration < videoDuration) {
       updateTrim(
-          0.0, maxDuration.inMilliseconds / videoDuration.inMilliseconds);
+        0.0,
+        maxDuration.inMilliseconds / videoDuration.inMilliseconds,
+      );
     } else {
       _updateTrimRange();
     }
@@ -228,18 +198,17 @@ class VideoEditorController extends ChangeNotifier {
   }
 
   @override
+  @mustBeOverridden
+  @mustCallSuper
   Future<void> dispose() async {
-    if (_video.value.isPlaying) await _video.pause();
-    _video.removeListener(_videoListener);
-    _video.dispose();
     _selectedCover.dispose();
     super.dispose();
   }
 
-  void _videoListener() {
+  void onPositionChanged() {
     final position = videoPosition;
     if (position < _trimStart || position > _trimEnd) {
-      _video.seekTo(_trimStart);
+      seekTo(_trimStart);
     }
   }
 
@@ -257,8 +226,10 @@ class VideoEditorController extends ChangeNotifier {
   ///
   /// Arguments range are [Offset.zero] to `Offset(1.0, 1.0)`.
   void updateCrop(Offset min, Offset max) {
-    assert(min < max,
-        'Minimum crop value ($min) cannot be bigger and maximum crop value ($max)');
+    assert(
+      min < max,
+      'Minimum crop value ($min) cannot be bigger and maximum crop value ($max)',
+    );
 
     _minCrop = min;
     _maxCrop = max;
@@ -276,8 +247,10 @@ class VideoEditorController extends ChangeNotifier {
   ///
   /// Arguments range are `0.0` to `1.0`.
   void updateTrim(double min, double max) {
-    assert(min < max,
-        'Minimum trim value ($min) cannot be bigger and maximum trim value ($max)');
+    assert(
+      min < max,
+      'Minimum trim value ($min) cannot be bigger and maximum trim value ($max)',
+    );
     // check that the new params does not cause a wrong duration
     final double newDuration = videoDuration.inMicroseconds * (max - min);
     // since [Duration] object does not takes integer we must round the
@@ -285,10 +258,14 @@ class VideoEditorController extends ChangeNotifier {
     final Duration newDurationCeil = Duration(microseconds: newDuration.ceil());
     final Duration newDurationFloor =
         Duration(microseconds: newDuration.floor());
-    assert(newDurationFloor <= maxDuration,
-        'Trim duration ($newDurationFloor) cannot be smaller than $minDuration');
-    assert(newDurationCeil >= minDuration,
-        'Trim duration ($newDurationCeil) cannot be bigger than $maxDuration');
+    assert(
+      newDurationFloor <= maxDuration,
+      'Trim duration ($newDurationFloor) cannot be smaller than $minDuration',
+    );
+    assert(
+      newDurationCeil >= minDuration,
+      'Trim duration ($newDurationCeil) cannot be bigger than $maxDuration',
+    );
 
     _minTrim = min;
     _maxTrim = max;
@@ -423,4 +400,29 @@ class VideoEditorController extends ChangeNotifier {
   }
 
   bool get isRotated => rotation == 90 || rotation == 270;
+}
+
+mixin _VideoPlayerControlMixin {
+  Listenable? get listenable => null;
+
+  /// Get initialized
+  bool get initialized;
+
+  /// Get isPlaying
+  bool get isPlaying;
+
+  /// Get videoPosition
+  Duration get videoPosition;
+
+  /// Get videoDuration
+  Duration get videoDuration;
+
+  /// Get videoDimension
+  Size get videoDimension;
+
+  FutureOr<void> seekTo(Duration position);
+
+  FutureOr<void> play();
+
+  FutureOr<void> pause();
 }

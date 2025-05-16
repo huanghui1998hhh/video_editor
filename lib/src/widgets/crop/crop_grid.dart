@@ -1,10 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:video_editor/src/controller.dart';
-import 'package:video_editor/src/utils/helpers.dart';
-import 'package:video_editor/src/models/transform_data.dart';
-import 'package:video_editor/src/widgets/crop/crop_mixin.dart';
+
+import '../../controller.dart';
+import '../../models/transform_data.dart';
+import '../../utils/helpers.dart';
+import '../theme/video_editor_theme.dart';
+import 'crop_mixin.dart';
 
 @protected
 enum CropBoundaries {
@@ -37,7 +39,7 @@ class CropGridViewer extends StatefulWidget {
   }) : showGrid = true;
 
   /// The [controller] param is mandatory so every change in the controller settings will propagate in the crop view
-  final VideoEditorController controller;
+  final BaseVideoEditorController controller;
 
   /// The [showGrid] param specifies whether the crop action can be triggered and if the crop grid is shown.
   /// Set this param to `false` to display the preview of the cropped video
@@ -61,10 +63,10 @@ class CropGridViewer extends StatefulWidget {
 class _CropGridViewerState extends State<CropGridViewer> with CropPreviewMixin {
   CropBoundaries _boundary = CropBoundaries.none;
 
-  late VideoEditorController _controller;
+  late BaseVideoEditorController _controller;
 
   /// Minimum size of the cropped area
-  late final double minRectSize = _controller.cropStyle.boundariesLength * 2;
+  late double minRectSize;
 
   @override
   void initState() {
@@ -76,6 +78,12 @@ class _CropGridViewerState extends State<CropGridViewer> with CropPreviewMixin {
     }
 
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    minRectSize = VideoEditorTheme.cropStyleOf(context).boundariesLength * 2;
   }
 
   @override
@@ -144,9 +152,10 @@ class _CropGridViewerState extends State<CropGridViewer> with CropPreviewMixin {
   Rect _expandedRect() {
     final expandedPosition = _expandedPosition(rect.value.center);
     return Rect.fromCenter(
-        center: rect.value.center,
-        width: rect.value.width + expandedPosition.width,
-        height: rect.value.height + expandedPosition.height);
+      center: rect.value.center,
+      width: rect.value.width + expandedPosition.width,
+      height: rect.value.height + expandedPosition.height,
+    );
   }
 
   /// Returns the [Offset] to shift [rect] with to centered in the view
@@ -196,10 +205,11 @@ class _CropGridViewerState extends State<CropGridViewer> with CropPreviewMixin {
       case CropBoundaries.inside:
         final Offset pos = rect.value.topLeft + delta;
         rect.value = Rect.fromLTWH(
-            pos.dx.clamp(0, layout.width - rect.value.width),
-            pos.dy.clamp(0, layout.height - rect.value.height),
-            rect.value.width,
-            rect.value.height);
+          pos.dx.clamp(0, layout.width - rect.value.width),
+          pos.dy.clamp(0, layout.height - rect.value.height),
+          rect.value.width,
+          rect.value.height,
+        );
         break;
       //CORNERS
       case CropBoundaries.topLeft:
@@ -279,6 +289,7 @@ class _CropGridViewerState extends State<CropGridViewer> with CropPreviewMixin {
           case CropBoundaries.bottomRight:
             right = left + height * aspectRatio!;
             break;
+          // ignore: no_default_cases
           default:
             assert(false);
         }
@@ -292,6 +303,7 @@ class _CropGridViewerState extends State<CropGridViewer> with CropPreviewMixin {
           case CropBoundaries.bottomRight:
             bottom = top + width / aspectRatio!;
             break;
+          // ignore: no_default_cases
           default:
             assert(false);
         }
@@ -303,7 +315,9 @@ class _CropGridViewerState extends State<CropGridViewer> with CropPreviewMixin {
     // don't apply changes if out of bounds
     if (newRect.width < minRectSize ||
         newRect.height < minRectSize ||
-        !isRectContained(layout, newRect)) return;
+        !isRectContained(layout, newRect)) {
+      return;
+    }
 
     rect.value = newRect;
   }

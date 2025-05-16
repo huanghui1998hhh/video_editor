@@ -1,17 +1,18 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:video_editor/src/controller.dart';
-import 'package:video_editor/src/models/cover_data.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
+import '../controller.dart';
+import '../models/cover_data.dart';
+
 Stream<List<Uint8List>> generateTrimThumbnails(
-  VideoEditorController controller, {
+  BaseVideoEditorController controller, {
   required int quantity,
 }) async* {
   final String path = controller.file.path;
   final double eachPart = controller.videoDuration.inMilliseconds / quantity;
-  List<Uint8List> byteList = [];
+  final List<Uint8List> byteList = [];
 
   for (int i = 1; i <= quantity; i++) {
     try {
@@ -33,14 +34,14 @@ Stream<List<Uint8List>> generateTrimThumbnails(
 }
 
 Stream<List<CoverData>> generateCoverThumbnails(
-  VideoEditorController controller, {
+  BaseVideoEditorController controller, {
   required int quantity,
 }) async* {
   final int duration = controller.isTrimmed
       ? controller.trimmedDuration.inMilliseconds
       : controller.videoDuration.inMilliseconds;
   final double eachPart = duration / quantity;
-  List<CoverData> byteList = [];
+  final List<CoverData> byteList = [];
 
   for (int i = 0; i < quantity; i++) {
     try {

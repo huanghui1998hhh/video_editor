@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
-import 'package:video_editor/src/controller.dart';
+import '../controller.dart';
 
 class ImageViewer extends StatelessWidget {
   const ImageViewer({
@@ -13,7 +13,7 @@ class ImageViewer extends StatelessWidget {
     this.fadeIn = true,
   });
 
-  final VideoEditorController controller;
+  final BaseVideoEditorController controller;
   final Uint8List bytes;
   final Widget? child;
   final bool fadeIn;
@@ -24,7 +24,7 @@ class ImageViewer extends StatelessWidget {
       child: Stack(
         children: [
           AspectRatio(
-            aspectRatio: controller.video.value.aspectRatio,
+            aspectRatio: controller.videoDimension.aspectRatio,
             child: fadeIn
                 ? FadeInImage(
                     fadeInDuration: const Duration(milliseconds: 400),
@@ -39,7 +39,7 @@ class ImageViewer extends StatelessWidget {
           ),
           if (child != null)
             AspectRatio(
-              aspectRatio: controller.video.value.aspectRatio,
+              aspectRatio: controller.videoDimension.aspectRatio,
               child: child,
             ),
         ],

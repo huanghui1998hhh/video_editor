@@ -5,9 +5,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:video_editor/src/controller.dart';
-import 'package:video_editor/src/models/file_format.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
+
+import '../controller.dart';
+import '../models/file_format.dart';
 
 class FFmpegVideoEditorExecute {
   const FFmpegVideoEditorExecute({
@@ -20,7 +21,14 @@ class FFmpegVideoEditorExecute {
 }
 
 abstract class FFmpegVideoEditorConfig {
-  final VideoEditorController controller;
+  const FFmpegVideoEditorConfig(
+    this.controller, {
+    this.name,
+    @protected this.outputDirectory,
+    this.scale = 1.0,
+    this.isFiltersEnabled = true,
+  });
+  final BaseVideoEditorController controller;
 
   /// If the [name] is `null`, then it uses this video filename.
   final String? name;
@@ -36,21 +44,13 @@ abstract class FFmpegVideoEditorConfig {
   /// Defaults to `true`.
   final bool isFiltersEnabled;
 
-  const FFmpegVideoEditorConfig(
-    this.controller, {
-    this.name,
-    @protected this.outputDirectory,
-    this.scale = 1.0,
-    this.isFiltersEnabled = true,
-  });
-
   /// Convert the controller's [minCrop] and [maxCrop] params into a [String]
   /// used to provide crop values to FFmpeg ([see more](https://ffmpeg.org/ffmpeg-filters.html#crop))
   ///
   /// The result is in the format `crop=w:h:x:y`
   String get cropCmd {
     if (controller.minCrop <= minOffset && controller.maxCrop >= maxOffset) {
-      return "";
+      return '';
     }
 
     final enddx = controller.videoWidth * controller.maxCrop.dx;
@@ -58,7 +58,7 @@ abstract class FFmpegVideoEditorConfig {
     final startdx = controller.videoWidth * controller.minCrop.dx;
     final startdy = controller.videoHeight * controller.minCrop.dy;
 
-    return "crop=${enddx - startdx}:${enddy - startdy}:$startdx:$startdy";
+    return 'crop=${enddx - startdx}:${enddy - startdy}:$startdx:$startdy';
   }
 
   /// Convert the controller's [rotation] value into a [String]
@@ -67,19 +67,19 @@ abstract class FFmpegVideoEditorConfig {
   /// The result is in the format `transpose=2` (repeated for every 90 degrees rotations)
   String get rotationCmd {
     final count = controller.rotation / 90;
-    if (count <= 0 || count >= 4) return "";
+    if (count <= 0 || count >= 4) return '';
 
     final List<String> transpose = [];
     for (int i = 0; i < controller.rotation / 90; i++) {
-      transpose.add("transpose=2");
+      transpose.add('transpose=2');
     }
-    return transpose.isNotEmpty ? transpose.join(',') : "";
+    return transpose.isNotEmpty ? transpose.join(',') : '';
   }
 
   /// [see FFmpeg doc](https://ffmpeg.org/ffmpeg-filters.html#scale)
   ///
   /// The result is in format `scale=width*scale:height*scale`
-  String get scaleCmd => scale == 1.0 ? "" : "scale=iw*$scale:ih*$scale";
+  String get scaleCmd => scale == 1.0 ? '' : 'scale=iw*$scale:ih*$scale';
 
   /// Returns the list of all the active filters
   List<String> getExportFilters() {
@@ -92,7 +92,7 @@ abstract class FFmpegVideoEditorConfig {
   /// Returns the `-filter:v` (-vf alias) command to use in FFmpeg execution
   String filtersCmd(List<String> filters) {
     filters.removeWhere((item) => item.isEmpty);
-    return filters.isNotEmpty ? "-vf '${filters.join(",")}'" : "";
+    return filters.isNotEmpty ? "-vf '${filters.join(",")}'" : '';
   }
 
   /// Returns the output path of the exported file
@@ -104,7 +104,7 @@ abstract class FFmpegVideoEditorConfig {
         outputDirectory ?? (await getTemporaryDirectory()).path;
     final String n = name ?? path.basenameWithoutExtension(filePath);
     final int epoch = DateTime.now().millisecondsSinceEpoch;
-    return "$tempPath/${n}_$epoch.${format.extension}";
+    return '$tempPath/${n}_$epoch.${format.extension}';
   }
 
   /// Can be used from FFmpeg session callback, for example:
@@ -151,16 +151,16 @@ class VideoFFmpegVideoEditorConfig extends FFmpegVideoEditorConfig {
 
   /// Returns the FFpeg command to apply the controller's trim start parameters
   /// [see FFmpeg doc](https://trac.ffmpeg.org/wiki/Seeking#Cuttingsmallsections)
-  String get startTrimCmd => "-ss ${controller.startTrim}";
+  String get startTrimCmd => '-ss ${controller.startTrim}';
 
   /// Returns the FFpeg command to apply the controller's trim end parameters
   /// [see FFmpeg doc](https://trac.ffmpeg.org/wiki/Seeking#Cuttingsmallsections)
-  String get toTrimCmd => "-t ${controller.trimmedDuration}";
+  String get toTrimCmd => '-t ${controller.trimmedDuration}';
 
   /// Returns the FFmpeg command to make the generated GIF to loop infinitely
   /// [see FFmpeg doc](https://ffmpeg.org/ffmpeg-formats.html#gif-2)
   String get gifCmd =>
-      format.extension == VideoExportFormat.gif.extension ? "-loop 0" : "";
+      format.extension == VideoExportFormat.gif.extension ? '-loop 0' : '';
 
   /// Returns the list of all the active filters, including the GIF filter
   @override
@@ -169,7 +169,8 @@ class VideoFFmpegVideoEditorConfig extends FFmpegVideoEditorConfig {
     final bool isGif = format.extension == VideoExportFormat.gif.extension;
     if (isGif) {
       filters.add(
-          'fps=${format is GifExportFormat ? (format as GifExportFormat).fps : VideoExportFormat.gif.fps}');
+        'fps=${format is GifExportFormat ? (format as GifExportFormat).fps : VideoExportFormat.gif.fps}',
+      );
     }
     return filters;
   }

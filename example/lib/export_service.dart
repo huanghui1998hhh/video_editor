@@ -1,11 +1,11 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:ffmpeg_kit_flutter_min/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter_min/ffmpeg_kit_config.dart';
-import 'package:ffmpeg_kit_flutter_min/ffmpeg_session.dart';
-import 'package:ffmpeg_kit_flutter_min/return_code.dart';
-import 'package:ffmpeg_kit_flutter_min/statistics.dart';
+import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit_config.dart';
+import 'package:ffmpeg_kit_flutter_new/ffmpeg_session.dart';
+import 'package:ffmpeg_kit_flutter_new/return_code.dart';
+import 'package:ffmpeg_kit_flutter_new/statistics.dart';
 import 'package:video_editor/video_editor.dart';
 
 class ExportService {
@@ -34,7 +34,8 @@ class ExportService {
           if (onError != null) {
             onError(
               Exception(
-                  'FFmpeg process exited with state $state and return code $code.\n${await session.getOutput()}'),
+                'FFmpeg process exited with state $state and return code $code.\n${await session.getOutput()}',
+              ),
               StackTrace.current,
             );
           }

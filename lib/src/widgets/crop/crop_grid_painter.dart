@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:video_editor/src/models/crop_style.dart';
-import 'package:video_editor/src/widgets/crop/crop_grid.dart';
+import '../../models/crop_style.dart';
+import 'crop_grid.dart';
 
 class CropGridPainter extends CustomPainter {
   const CropGridPainter(
@@ -40,8 +40,14 @@ class CropGridPainter extends CustomPainter {
       Path.combine(
         PathOperation.difference,
         Path()
-          ..addRect(Rect.fromLTWH(-margin, -margin, size.width + margin * 2,
-              size.height + margin * 2)),
+          ..addRect(
+            Rect.fromLTWH(
+              -margin,
+              -margin,
+              size.width + margin * 2,
+              size.height + margin * 2,
+            ),
+          ),
         Path()
           ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(radius)))
           ..close(),
@@ -57,8 +63,8 @@ class CropGridPainter extends CustomPainter {
       ..color = style.gridLineColor;
 
     for (int i = 1; i < gridSize; i++) {
-      double rowDy = rect.topLeft.dy + (rect.height / gridSize) * i;
-      double columnDx = rect.topLeft.dx + (rect.width / gridSize) * i;
+      final double rowDy = rect.topLeft.dy + (rect.height / gridSize) * i;
+      final double columnDx = rect.topLeft.dx + (rect.width / gridSize) * i;
       canvas.drawLine(
         Offset(columnDx, rect.topLeft.dy),
         Offset(columnDx, rect.bottomLeft.dy),

@@ -6,9 +6,11 @@ import 'package:fraction/fraction.dart';
 import 'package:path/path.dart' as path;
 import 'package:video_player/video_player.dart';
 
-Future<void> _getImageDimension(File file,
-    {required Function(Size) onResult}) async {
-  var decodedImage = await decodeImageFromList(file.readAsBytesSync());
+Future<void> _getImageDimension(
+  File file, {
+  required Function(Size) onResult,
+}) async {
+  final decodedImage = await decodeImageFromList(file.readAsBytesSync());
   onResult(Size(decodedImage.width.toDouble(), decodedImage.height.toDouble()));
 }
 
@@ -29,7 +31,7 @@ class _VideoResultPopupState extends State<VideoResultPopup> {
   FileImage? _fileImage;
   Size _fileDimension = Size.zero;
   late final bool _isGif =
-      path.extension(widget.video.path).toLowerCase() == ".gif";
+      path.extension(widget.video.path).toLowerCase() == '.gif';
   late String _fileMbSize;
 
   @override

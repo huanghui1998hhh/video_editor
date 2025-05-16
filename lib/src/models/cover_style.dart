@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+@immutable
 class CoverSelectionStyle {
   /// Style for [CoverSelection]. It's use on VideoEditorController
   const CoverSelectionStyle({
@@ -22,4 +23,22 @@ class CoverSelectionStyle {
   ///
   /// Defaults to `5`
   final double borderRadius;
+
+  @override
+  int get hashCode =>
+      Object.hash(selectedBorderColor, borderWidth, borderRadius);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is CoverSelectionStyle &&
+        other.selectedBorderColor == selectedBorderColor &&
+        other.borderWidth == borderWidth &&
+        other.borderRadius == borderRadius;
+  }
 }

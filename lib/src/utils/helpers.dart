@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'package:video_editor/video_editor.dart';
+import '../../video_editor.dart';
 
 const kDefaultSelectedColor = Color(0xffffcc00);
 
@@ -83,7 +83,7 @@ double scaleToSizeMax(Size layout, Rect rect) =>
 /// Calculate crop [Rect] area
 /// depending of [controller] min and max crop values and the size of the layout
 Rect calculateCroppedRect(
-  VideoEditorController controller,
+  BaseVideoEditorController controller,
   Size layout, {
   Offset? min,
   Offset? max,

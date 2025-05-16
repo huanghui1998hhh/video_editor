@@ -1,14 +1,16 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:video_editor/src/controller.dart';
-import 'package:video_editor/src/utils/helpers.dart';
-import 'package:video_editor/src/models/transform_data.dart';
-import 'package:video_editor/src/widgets/crop/crop_grid.dart';
-import 'package:video_editor/src/widgets/crop/crop_grid_painter.dart';
-import 'package:video_editor/src/widgets/image_viewer.dart';
-import 'package:video_editor/src/widgets/transform.dart';
-import 'package:video_editor/src/widgets/video_viewer.dart';
+
+import '../../controller.dart';
+import '../../models/transform_data.dart';
+import '../../utils/helpers.dart';
+import '../image_viewer.dart';
+import '../theme/video_editor_theme.dart';
+import '../transform.dart';
+import '../video_viewer.dart';
+import 'crop_grid.dart';
+import 'crop_grid_painter.dart';
 
 mixin CropPreviewMixin<T extends StatefulWidget> on State<T> {
   final ValueNotifier<Rect> rect = ValueNotifier<Rect>(Rect.zero);
@@ -28,18 +30,21 @@ mixin CropPreviewMixin<T extends StatefulWidget> on State<T> {
   /// Returns the size of the max crop dimension based on available space and
   /// original video aspect ratio
   Size computeLayout(
-    VideoEditorController controller, {
+    BaseVideoEditorController controller, {
     EdgeInsets margin = EdgeInsets.zero,
     bool shouldFlipped = false,
   }) {
     if (viewerSize == Size.zero) return Size.zero;
-    final videoRatio = controller.video.value.aspectRatio;
-    final size = Size(viewerSize.width - margin.horizontal,
-        viewerSize.height - margin.vertical);
+    final videoRatio = controller.videoDimension.aspectRatio;
+    final size = Size(
+      viewerSize.width - margin.horizontal,
+      viewerSize.height - margin.vertical,
+    );
     if (shouldFlipped) {
-      return computeSizeWithRatio(videoRatio > 1 ? size.flipped : size,
-              getOppositeRatio(videoRatio))
-          .flipped;
+      return computeSizeWithRatio(
+        videoRatio > 1 ? size.flipped : size,
+        getOppositeRatio(videoRatio),
+      ).flipped;
     }
     return computeSizeWithRatio(size, videoRatio);
   }
@@ -51,7 +56,7 @@ mixin CropPreviewMixin<T extends StatefulWidget> on State<T> {
   /// Returns the [VideoViewer] tranformed with editing view
   /// Paint rect on top of the video area outside of the crop rect
   Widget buildVideoView(
-    VideoEditorController controller,
+    BaseVideoEditorController controller,
     TransformData transform,
     CropBoundaries boundary, {
     bool showGrid = false,
@@ -77,7 +82,7 @@ mixin CropPreviewMixin<T extends StatefulWidget> on State<T> {
   /// Returns the [ImageViewer] tranformed with editing view
   /// Paint rect on top of the video area outside of the crop rect
   Widget buildImageView(
-    VideoEditorController controller,
+    BaseVideoEditorController controller,
     Uint8List bytes,
     TransformData transform,
   ) {
@@ -89,19 +94,20 @@ mixin CropPreviewMixin<T extends StatefulWidget> on State<T> {
         child: ImageViewer(
           controller: controller,
           bytes: bytes,
-          child:
-              buildPaint(controller, showGrid: false, showCenterRects: false),
+          child: buildPaint(controller),
         ),
       ),
     );
   }
 
   Widget buildPaint(
-    VideoEditorController controller, {
+    BaseVideoEditorController controller, {
     CropBoundaries? boundary,
     bool showGrid = false,
     bool showCenterRects = false,
   }) {
+    final cropStyle = VideoEditorTheme.cropStyleOf(context);
+
     return ValueListenableBuilder(
       valueListenable: rect,
 
@@ -111,7 +117,7 @@ mixin CropPreviewMixin<T extends StatefulWidget> on State<T> {
           size: Size.infinite,
           painter: CropGridPainter(
             value,
-            style: controller.cropStyle,
+            style: cropStyle,
             boundary: boundary,
             showGrid: showGrid,
             showCenterRects: showCenterRects,
@@ -123,18 +129,20 @@ mixin CropPreviewMixin<T extends StatefulWidget> on State<T> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (_, constraints) {
-      final size = constraints.biggest;
-      if (size != viewerSize) {
-        viewerSize = constraints.biggest;
-        updateRectFromBuild();
-      }
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        final size = constraints.biggest;
+        if (size != viewerSize) {
+          viewerSize = constraints.biggest;
+          updateRectFromBuild();
+        }
 
-      return ValueListenableBuilder(
-        valueListenable: transform,
-        builder: (_, TransformData transform, __) =>
-            buildView(context, transform),
-      );
-    });
+        return ValueListenableBuilder(
+          valueListenable: transform,
+          builder: (_, TransformData transform, __) =>
+              buildView(context, transform),
+        );
+      },
+    );
   }
 }

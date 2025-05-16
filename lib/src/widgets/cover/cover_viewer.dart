@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:video_editor/src/controller.dart';
-import 'package:video_editor/src/utils/helpers.dart';
-import 'package:video_editor/src/models/cover_data.dart';
-import 'package:video_editor/src/models/transform_data.dart';
-import 'package:video_editor/src/widgets/crop/crop_mixin.dart';
+import '../../controller.dart';
+import '../../models/cover_data.dart';
+import '../../models/transform_data.dart';
+import '../../utils/helpers.dart';
+import '../crop/crop_mixin.dart';
 
 class CoverViewer extends StatefulWidget {
   /// It is the viewer that show the selected cover
@@ -14,7 +14,7 @@ class CoverViewer extends StatefulWidget {
   });
 
   /// The [controller] param is mandatory so every change in the controller settings will propagate the crop parameters in the cover view
-  final VideoEditorController controller;
+  final BaseVideoEditorController controller;
 
   /// The [noCoverText] param specifies the text to display when selectedCover is `null`
   final String noCoverText;

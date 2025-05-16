@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:video_editor/src/utils/helpers.dart';
+import '../utils/helpers.dart';
 
 enum TrimSliderEdgesType { bar, circle }
 
+@immutable
 class TrimSliderStyle {
   ///Style for [TrimSlider]. It's use on VideoEditorController
   const TrimSliderStyle({
@@ -98,4 +99,43 @@ class TrimSliderStyle {
   /// Returns left and right line width depending on [edgesType]
   double get edgeWidth =>
       edgesType == TrimSliderEdgesType.bar ? edgesSize : lineWidth;
+
+  @override
+  int get hashCode => Object.hash(
+        background,
+        positionLineColor,
+        positionLineWidth,
+        lineColor,
+        onTrimmingColor,
+        onTrimmedColor,
+        lineWidth,
+        borderRadius,
+        edgesType,
+        edgesSize,
+        iconColor,
+        iconSize,
+        leftIcon,
+        rightIcon,
+      );
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is TrimSliderStyle &&
+        other.background == background &&
+        other.positionLineColor == positionLineColor &&
+        other.positionLineWidth == positionLineWidth &&
+        other.lineColor == lineColor &&
+        other.onTrimmingColor == onTrimmingColor &&
+        other.onTrimmedColor == onTrimmedColor &&
+        other.lineWidth == lineWidth &&
+        other.borderRadius == borderRadius &&
+        other.edgesType == edgesType &&
+        other.edgesSize == edgesSize &&
+        other.iconColor == iconColor &&
+        other.iconSize == iconSize &&
+        other.leftIcon == leftIcon &&
+        other.rightIcon == rightIcon;
+  }
 }

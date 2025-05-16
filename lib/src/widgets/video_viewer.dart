@@ -1,33 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:video_editor/src/controller.dart';
-import 'package:video_player/video_player.dart';
+
+import '../controller.dart';
+import 'theme/video_editor_theme.dart';
 
 class VideoViewer extends StatelessWidget {
   const VideoViewer({super.key, required this.controller, this.child});
 
-  final VideoEditorController controller;
+  final BaseVideoEditorController controller;
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (controller.video.value.isPlaying) {
-          controller.video.pause();
+        if (controller.isPlaying) {
+          controller.pause();
         } else {
-          controller.video.play();
+          controller.play();
         }
       },
       child: Center(
         child: Stack(
           children: [
             AspectRatio(
-              aspectRatio: controller.video.value.aspectRatio,
-              child: VideoPlayer(controller.video),
+              aspectRatio: controller.videoDimension.aspectRatio,
+              child: VideoEditorTheme.previewBuilderOf(
+                context,
+              )(
+                context,
+                controller,
+              ),
             ),
             if (child != null)
               AspectRatio(
-                aspectRatio: controller.video.value.aspectRatio,
+                aspectRatio: controller.videoDimension.aspectRatio,
                 child: child,
               ),
           ],

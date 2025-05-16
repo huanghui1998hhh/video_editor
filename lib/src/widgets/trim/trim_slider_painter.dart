@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:video_editor/src/models/trim_style.dart';
+import '../../models/trim_style.dart';
 
 class TrimSliderPainter extends CustomPainter {
   const TrimSliderPainter(
@@ -96,10 +96,12 @@ class TrimSliderPainter extends CustomPainter {
         PathOperation.union,
         // DRAW TOP AND BOTTOM LINES
         Path()
-          ..addRect(Rect.fromPoints(
-            rect.topLeft,
-            rect.topRight - Offset(0.0, style.lineWidth),
-          ))
+          ..addRect(
+            Rect.fromPoints(
+              rect.topLeft,
+              rect.topRight - Offset(0.0, style.lineWidth),
+            ),
+          )
           ..addRect(
             Rect.fromPoints(
               rect.bottomRight + Offset(0.0, style.lineWidth),
@@ -231,15 +233,16 @@ class TrimSliderPainter extends CustomPainter {
   }) {
     // DRAW RECT BORDERS
     canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromCenter(
-            center: rect.center,
-            width: rect.width + style.edgeWidth,
-            height: rect.height + style.edgeWidth,
-          ),
-          Radius.circular(style.borderRadius),
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(
+          center: rect.center,
+          width: rect.width + style.edgeWidth,
+          height: rect.height + style.edgeWidth,
         ),
-        line);
+        Radius.circular(style.borderRadius),
+      ),
+      line,
+    );
 
     paintIndicator(canvas, size);
 
@@ -281,7 +284,8 @@ class TrimSliderPainter extends CustomPainter {
 
     // LEFT ICON
     if (style.leftIcon != null) {
-      TextPainter leftArrow = TextPainter(textDirection: TextDirection.rtl);
+      final TextPainter leftArrow =
+          TextPainter(textDirection: TextDirection.rtl);
       leftArrow.text = TextSpan(
         text: String.fromCharCode(style.leftIcon!.codePoint),
         style: TextStyle(
@@ -296,7 +300,8 @@ class TrimSliderPainter extends CustomPainter {
 
     // RIGHT ICON
     if (style.rightIcon != null) {
-      TextPainter rightArrow = TextPainter(textDirection: TextDirection.rtl);
+      final TextPainter rightArrow =
+          TextPainter(textDirection: TextDirection.rtl);
       rightArrow.text = TextSpan(
         text: String.fromCharCode(style.rightIcon!.codePoint),
         style: TextStyle(

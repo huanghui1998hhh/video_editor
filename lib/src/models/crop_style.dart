@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:video_editor/src/utils/helpers.dart';
+import '../utils/helpers.dart';
 
+@immutable
 class CropGridStyle {
   ///Style for [CropGridViewer]. It's use on VideoEditorController
   const CropGridStyle({
@@ -60,4 +61,33 @@ class CropGridStyle {
   ///
   /// Defaults to `5`
   final double boundariesWidth;
+
+  @override
+  int get hashCode => Object.hash(
+        croppingBackground,
+        background,
+        gridLineColor,
+        gridLineWidth,
+        gridSize,
+        boundariesColor,
+        selectedBoundariesColor,
+        boundariesLength,
+        boundariesWidth,
+      );
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is CropGridStyle &&
+        other.croppingBackground == croppingBackground &&
+        other.background == background &&
+        other.gridLineColor == gridLineColor &&
+        other.gridLineWidth == gridLineWidth &&
+        other.gridSize == gridSize &&
+        other.boundariesColor == boundariesColor &&
+        other.selectedBoundariesColor == selectedBoundariesColor &&
+        other.boundariesLength == boundariesLength &&
+        other.boundariesWidth == boundariesWidth;
+  }
 }
