@@ -63,7 +63,7 @@ class VideoEditorController extends BaseVideoEditorController
     _video.addListener(onPositionChanged);
     _video.setLooping(true);
 
-    super.initialize(aspectRatio: aspectRatio);
+    await super.initialize(aspectRatio: aspectRatio);
   }
 
   @override
