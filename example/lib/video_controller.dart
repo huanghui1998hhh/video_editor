@@ -5,16 +5,26 @@ import 'package:flutter/widgets.dart';
 import 'package:video_editor/video_editor.dart';
 import 'package:video_player/video_player.dart';
 
-class VideoEditorController extends BaseVideoEditorController {
+class VideoEditorController extends BaseVideoEditorController
+    with VideoCoverHandler {
   VideoEditorController({
-    required super.file,
+    required this.file,
     super.maxDuration,
     super.minDuration,
-    super.coverThumbnailsQuality,
-    super.trimThumbnailsQuality,
+    this.coverThumbnailsQuality = 10,
+    this.trimThumbnailsQuality = 10,
   }) : _video = VideoPlayerController.file(
           File(Platform.isIOS ? Uri.encodeFull(file.path) : file.path),
         );
+
+  @override
+  final File file;
+
+  @override
+  final int coverThumbnailsQuality;
+
+  @override
+  final int trimThumbnailsQuality;
 
   final VideoPlayerController _video;
   VideoPlayerController get video => _video;

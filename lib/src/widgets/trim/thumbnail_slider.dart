@@ -21,7 +21,7 @@ class ThumbnailSlider extends StatefulWidget {
   /// The [height] param specifies the height of the generated thumbnails
   final double height;
 
-  final BaseVideoEditorController controller;
+  final VideoCoverHandler controller;
 
   @override
   State<ThumbnailSlider> createState() => _ThumbnailSliderState();

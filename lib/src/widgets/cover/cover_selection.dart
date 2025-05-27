@@ -25,7 +25,7 @@ class CoverSelection extends StatefulWidget {
   });
 
   /// The [controller] param is mandatory so every change in the controller settings will propagate in the cover selection view
-  final BaseVideoEditorController controller;
+  final VideoCoverHandler controller;
 
   /// The [size] param specifies the size to display the generated thumbnails
   ///

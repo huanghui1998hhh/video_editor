@@ -28,7 +28,7 @@ abstract class FFmpegVideoEditorConfig {
     this.scale = 1.0,
     this.isFiltersEnabled = true,
   });
-  final BaseVideoEditorController controller;
+  final VideoCoverHandler controller;
 
   /// If the [name] is `null`, then it uses this video filename.
   final String? name;
@@ -114,7 +114,7 @@ abstract class FFmpegVideoEditorConfig {
   /// });
   /// ```
   /// Returns the [double] progress value between 0.0 and 1.0.
-  double getFFmpegProgress(int time) {
+  double getFFmpegProgress(double time) {
     final double progressValue =
         time / controller.trimmedDuration.inMilliseconds;
     return progressValue.clamp(0.0, 1.0);

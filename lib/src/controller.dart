@@ -34,18 +34,12 @@ abstract class BaseVideoEditorController extends ChangeNotifier
   ///
   /// The [file] argument must not be null.
   BaseVideoEditorController({
-    required this.file,
     this.maxDuration = Duration.zero,
     this.minDuration = Duration.zero,
-    this.coverThumbnailsQuality = 10,
-    this.trimThumbnailsQuality = 10,
   }) : assert(
           maxDuration > minDuration,
           'The max ium duration must be bigger than the minimum duration',
         );
-
-  /// Video from [File].
-  final File file;
 
   int _rotation = 0;
   bool _isTrimming = false;
@@ -65,10 +59,6 @@ abstract class BaseVideoEditorController extends ChangeNotifier
 
   Duration _trimEnd = Duration.zero;
   Duration _trimStart = Duration.zero;
-
-  // Selected cover value
-  final ValueNotifier<CoverData?> _selectedCover =
-      ValueNotifier<CoverData?>(null);
 
   double get videoWidth => videoDimension.width;
   double get videoHeight => videoDimension.height;
@@ -188,11 +178,10 @@ abstract class BaseVideoEditorController extends ChangeNotifier
         maxDuration.inMilliseconds / videoDuration.inMilliseconds,
       );
     } else {
-      _updateTrimRange();
+      updateTrimRange();
     }
 
     cropAspectRatio(aspectRatio);
-    generateDefaultCoverThumbnail();
 
     notifyListeners();
   }
@@ -201,7 +190,6 @@ abstract class BaseVideoEditorController extends ChangeNotifier
   @mustBeOverridden
   @mustCallSuper
   Future<void> dispose() async {
-    _selectedCover.dispose();
     super.dispose();
   }
 
@@ -269,10 +257,10 @@ abstract class BaseVideoEditorController extends ChangeNotifier
 
     _minTrim = min;
     _maxTrim = max;
-    _updateTrimRange();
+    updateTrimRange();
   }
 
-  void _updateTrimRange() {
+  void updateTrimRange() {
     _trimStart = videoDuration * minTrim;
     _trimEnd = videoDuration * maxTrim;
 
@@ -281,8 +269,6 @@ abstract class BaseVideoEditorController extends ChangeNotifier
     } else {
       _isTrimmed = false;
     }
-
-    _checkUpdateDefaultCover();
 
     notifyListeners();
   }
@@ -298,9 +284,6 @@ abstract class BaseVideoEditorController extends ChangeNotifier
   bool get isTrimming => _isTrimming;
   set isTrimming(bool value) {
     _isTrimming = value;
-    if (!value) {
-      _checkUpdateDefaultCover();
-    }
     notifyListeners();
   }
 
@@ -328,6 +311,49 @@ abstract class BaseVideoEditorController extends ChangeNotifier
   double get trimPosition =>
       videoPosition.inMilliseconds / videoDuration.inMilliseconds;
 
+  //------------//
+  //VIDEO ROTATE//
+  //------------//
+
+  /// Get the rotation of the video, value should be a multiple of `90`
+  int get cacheRotation => _rotation;
+
+  /// Get the rotation of the video,
+  /// possible values are: `0`, `90`, `180` and `270`
+  int get rotation => (_rotation ~/ 90 % 4) * 90;
+
+  /// Rotate the video by 90 degrees in the [direction] provided
+  void rotate90Degrees([RotateDirection direction = RotateDirection.right]) {
+    switch (direction) {
+      case RotateDirection.left:
+        _rotation += 90;
+        break;
+      case RotateDirection.right:
+        _rotation -= 90;
+        break;
+    }
+    notifyListeners();
+  }
+
+  bool get isRotated => rotation == 90 || rotation == 270;
+}
+
+mixin VideoCoverHandler on BaseVideoEditorController {
+  File get file;
+
+  // Selected cover value
+  final ValueNotifier<CoverData?> _selectedCover =
+      ValueNotifier<CoverData?>(null);
+
+  @override
+  @mustBeOverridden
+  @mustCallSuper
+  Future<void> initialize({double? aspectRatio}) async {
+    await super.initialize(aspectRatio: aspectRatio);
+    _checkUpdateDefaultCover();
+    generateDefaultCoverThumbnail();
+  }
+
   //-----------//
   //VIDEO COVER//
   //-----------//
@@ -336,13 +362,13 @@ abstract class BaseVideoEditorController extends ChangeNotifier
   /// cover selection thumbnails (from 0 to 100 ([more info](https://pub.dev/packages/video_thumbnail)))
   ///
   /// Defaults to `10`.
-  final int coverThumbnailsQuality;
+  int get coverThumbnailsQuality;
 
   /// The [trimThumbnailsQuality] param specifies the quality of the generated
   /// trim slider thumbnails (from 0 to 100 ([more info](https://pub.dev/packages/video_thumbnail)))
   ///
   /// Defaults to `10`.
-  final int trimThumbnailsQuality;
+  int get trimThumbnailsQuality;
 
   /// Replace selected cover by [selectedCover]
   void updateSelectedCover(CoverData selectedCover) async {
@@ -375,31 +401,26 @@ abstract class BaseVideoEditorController extends ChangeNotifier
   /// Get the [selectedCover] value
   CoverData? get selectedCoverVal => _selectedCover.value;
 
-  //------------//
-  //VIDEO ROTATE//
-  //------------//
-
-  /// Get the rotation of the video, value should be a multiple of `90`
-  int get cacheRotation => _rotation;
-
-  /// Get the rotation of the video,
-  /// possible values are: `0`, `90`, `180` and `270`
-  int get rotation => (_rotation ~/ 90 % 4) * 90;
-
-  /// Rotate the video by 90 degrees in the [direction] provided
-  void rotate90Degrees([RotateDirection direction = RotateDirection.right]) {
-    switch (direction) {
-      case RotateDirection.left:
-        _rotation += 90;
-        break;
-      case RotateDirection.right:
-        _rotation -= 90;
-        break;
+  @override
+  set isTrimming(bool value) {
+    super.isTrimming = value;
+    if (!value) {
+      _checkUpdateDefaultCover();
     }
-    notifyListeners();
   }
 
-  bool get isRotated => rotation == 90 || rotation == 270;
+  @override
+  void updateTrimRange() {
+    super.updateTrimRange();
+
+    _checkUpdateDefaultCover();
+  }
+
+  @override
+  Future<void> dispose() async {
+    _selectedCover.dispose();
+    super.dispose();
+  }
 }
 
 mixin _VideoPlayerControlMixin {

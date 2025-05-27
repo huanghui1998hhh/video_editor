@@ -14,7 +14,7 @@ class CoverViewer extends StatefulWidget {
   });
 
   /// The [controller] param is mandatory so every change in the controller settings will propagate the crop parameters in the cover view
-  final BaseVideoEditorController controller;
+  final VideoCoverHandler controller;
 
   /// The [noCoverText] param specifies the text to display when selectedCover is `null`
   final String noCoverText;

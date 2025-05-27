@@ -11,20 +11,28 @@ import 'video_controller.dart';
 import 'widgets/export_result.dart';
 
 void main() => runApp(
-      MaterialApp(
-        title: 'Flutter Video Editor Demo',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.grey,
-          brightness: Brightness.dark,
-          tabBarTheme: const TabBarTheme(
-            indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(color: Colors.white),
-            ),
-          ),
-          dividerColor: Colors.white,
+      VideoEditorTheme(
+        coverStyle: const CoverSelectionStyle(),
+        cropStyle: const CropGridStyle(),
+        trimStyle: TrimSliderStyle(),
+        previewBuilder: (context, controller) => VideoPlayer(
+          (controller as VideoEditorController).video,
         ),
-        home: const VideoEditorExample(),
+        child: MaterialApp(
+          title: 'Flutter Video Editor Demo',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primarySwatch: Colors.grey,
+            brightness: Brightness.dark,
+            tabBarTheme: const TabBarTheme(
+              indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(color: Colors.white),
+              ),
+            ),
+            dividerColor: Colors.white,
+          ),
+          home: const VideoEditorExample(),
+        ),
       ),
     );
 
@@ -188,144 +196,132 @@ class _VideoEditorState extends State<VideoEditor> {
       child: Scaffold(
         backgroundColor: Colors.black,
         body: _controller.initialized
-            ? VideoEditorTheme(
-                coverStyle: const CoverSelectionStyle(),
-                cropStyle: const CropGridStyle(),
-                trimStyle: TrimSliderStyle(),
-                previewBuilder: (context, controller) => VideoPlayer(
-                  (controller as VideoEditorController).video,
-                ),
-                child: SafeArea(
-                  child: Stack(
-                    children: [
-                      Column(
-                        children: [
-                          _topNavBar(),
-                          Expanded(
-                            child: DefaultTabController(
-                              length: 2,
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: TabBarView(
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      children: [
-                                        Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            CropGridViewer.preview(
-                                              controller: _controller,
-                                            ),
-                                            AnimatedBuilder(
-                                              animation: _controller.video,
-                                              builder: (_, __) =>
-                                                  AnimatedOpacity(
-                                                opacity: _controller.isPlaying
-                                                    ? 0
-                                                    : 1,
-                                                duration:
-                                                    kThemeAnimationDuration,
-                                                child: GestureDetector(
-                                                  onTap: _controller.video.play,
-                                                  child: Container(
-                                                    width: 40,
-                                                    height: 40,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      color: Colors.white,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    child: const Icon(
-                                                      Icons.play_arrow,
-                                                      color: Colors.black,
-                                                    ),
+            ? SafeArea(
+                child: Stack(
+                  children: [
+                    Column(
+                      children: [
+                        _topNavBar(),
+                        Expanded(
+                          child: DefaultTabController(
+                            length: 2,
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: TabBarView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children: [
+                                      Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          CropGridViewer.preview(
+                                            controller: _controller,
+                                          ),
+                                          AnimatedBuilder(
+                                            animation: _controller.video,
+                                            builder: (_, __) => AnimatedOpacity(
+                                              opacity:
+                                                  _controller.isPlaying ? 0 : 1,
+                                              duration: kThemeAnimationDuration,
+                                              child: GestureDetector(
+                                                onTap: _controller.video.play,
+                                                child: Container(
+                                                  width: 40,
+                                                  height: 40,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    color: Colors.white,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.play_arrow,
+                                                    color: Colors.black,
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                        CoverViewer(controller: _controller),
-                                      ],
-                                    ),
+                                          ),
+                                        ],
+                                      ),
+                                      CoverViewer(controller: _controller),
+                                    ],
                                   ),
-                                  Container(
-                                    height: 200,
-                                    margin: const EdgeInsets.only(top: 10),
-                                    child: Column(
-                                      children: [
-                                        const TabBar(
-                                          tabs: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Padding(
-                                                  padding: EdgeInsets.all(5),
-                                                  child: Icon(
-                                                    Icons.content_cut,
-                                                  ),
-                                                ),
-                                                Text('Trim'),
-                                              ],
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Padding(
-                                                  padding: EdgeInsets.all(5),
-                                                  child:
-                                                      Icon(Icons.video_label),
-                                                ),
-                                                Text('Cover'),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        Expanded(
-                                          child: TabBarView(
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
+                                ),
+                                Container(
+                                  height: 200,
+                                  margin: const EdgeInsets.only(top: 10),
+                                  child: Column(
+                                    children: [
+                                      const TabBar(
+                                        tabs: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
-                                              Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: _trimSlider(),
+                                              Padding(
+                                                padding: EdgeInsets.all(5),
+                                                child: Icon(
+                                                  Icons.content_cut,
+                                                ),
                                               ),
-                                              _coverSelection(),
+                                              Text('Trim'),
                                             ],
                                           ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.all(5),
+                                                child: Icon(Icons.video_label),
+                                              ),
+                                              Text('Cover'),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Expanded(
+                                        child: TabBarView(
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          children: [
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: _trimSlider(),
+                                            ),
+                                            _coverSelection(),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                  ValueListenableBuilder(
-                                    valueListenable: _isExporting,
-                                    builder: (_, bool export, Widget? child) =>
-                                        AnimatedSize(
-                                      duration: kThemeAnimationDuration,
-                                      child: export ? child : null,
-                                    ),
-                                    child: AlertDialog(
-                                      title: ValueListenableBuilder(
-                                        valueListenable: _exportingProgress,
-                                        builder: (_, double value, __) => Text(
-                                          'Exporting video ${(value * 100).ceil()}%',
-                                          style: const TextStyle(fontSize: 12),
-                                        ),
+                                ),
+                                ValueListenableBuilder(
+                                  valueListenable: _isExporting,
+                                  builder: (_, bool export, Widget? child) =>
+                                      AnimatedSize(
+                                    duration: kThemeAnimationDuration,
+                                    child: export ? child : null,
+                                  ),
+                                  child: AlertDialog(
+                                    title: ValueListenableBuilder(
+                                      valueListenable: _exportingProgress,
+                                      builder: (_, double value, __) => Text(
+                                        'Exporting video ${(value * 100).ceil()}%',
+                                        style: const TextStyle(fontSize: 12),
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               )
             : const Center(child: CircularProgressIndicator()),

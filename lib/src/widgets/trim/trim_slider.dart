@@ -27,7 +27,7 @@ class TrimSlider extends StatefulWidget {
   });
 
   /// The [controller] param is mandatory so every change in the controller settings will propagate in the trim slider view
-  final BaseVideoEditorController controller;
+  final VideoCoverHandler controller;
 
   /// The [height] param specifies the height of the generated thumbnails
   ///

@@ -7,7 +7,7 @@ import '../controller.dart';
 import '../models/cover_data.dart';
 
 Stream<List<Uint8List>> generateTrimThumbnails(
-  BaseVideoEditorController controller, {
+  VideoCoverHandler controller, {
   required int quantity,
 }) async* {
   final String path = controller.file.path;
@@ -34,7 +34,7 @@ Stream<List<Uint8List>> generateTrimThumbnails(
 }
 
 Stream<List<CoverData>> generateCoverThumbnails(
-  BaseVideoEditorController controller, {
+  VideoCoverHandler controller, {
   required int quantity,
 }) async* {
   final int duration = controller.isTrimmed
